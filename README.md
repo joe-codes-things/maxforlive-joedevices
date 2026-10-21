@@ -2,5 +2,11 @@
 
 A collection of Max for Live devices and development notes for Ableton Live.
 
-The first device in development will automatically arm an eligible track when
-it is selected. See the [track arm-on-selection plan](docs/Ableton-Track-Arm-Plan.md).
+The initial device, Track Select Auto Arm, arms an eligible track when it
+becomes selected. Its Max patch and packaged device are in
+[`track-select-auto-arm/`](track-select-auto-arm/). Add it as a Max Audio
+Effect on the Master track to monitor global track selection while passing
+audio through unchanged.
+
+See [`docs/ONBOARDING.md`](docs/ONBOARDING.md) for the repository overview and
+validation status.

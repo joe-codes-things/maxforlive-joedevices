@@ -1,1 +1,6 @@
 .DS_Store
+.github/
+.githooks/
+/docs/BUGS.md
+/docs/FEATURE-IDEAS.md
+/docs/ONBOARDING.md
