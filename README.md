@@ -7,6 +7,3 @@ becomes selected. Its Max patch and packaged device are in
 [`track-select-auto-arm/`](track-select-auto-arm/). Add it as a Max Audio
 Effect on the Master track to monitor global track selection while passing
 audio through unchanged.
-
-See [`docs/ONBOARDING.md`](docs/ONBOARDING.md) for the repository overview and
-validation status.
