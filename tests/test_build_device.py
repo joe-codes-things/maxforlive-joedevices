@@ -247,6 +247,96 @@ class BuildDeviceTests(unittest.TestCase):
         self.assertIn((("obj-24", 0), ("obj-15", 0)), connections)
         self.assertIn((("obj-24", 1), ("obj-15", 0)), connections)
 
+    def test_note_length_controls_map_to_expected_grid_divisions(self) -> None:
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "note-length"
+            / "v0.0.9"
+            / "nla_Note-Length-v0.0.9.maxpat"
+        )
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+        expected_controls = [
+            ("obj-4", "obj-42", "obj-43", "obj-44", "1/1", "4"),
+            ("obj-7", "obj-46", "obj-47", "obj-48", "1/2", "5"),
+            ("obj-10", "obj-50", "obj-51", "obj-52", "1/4", "6"),
+            ("obj-13", "obj-54", "obj-55", "obj-56", "1/8", "7"),
+            ("obj-16", "obj-58", "obj-59", "obj-60", "1/16", "8"),
+            ("obj-19", "obj-62", "obj-63", "obj-64", "1/32", "9"),
+        ]
+
+        for button, trigger, triplet, quantization, division, value in (
+            expected_controls
+        ):
+            with self.subTest(division=division):
+                self.assertEqual(boxes[button]["maxclass"], "live.button")
+                self.assertEqual(boxes[button]["parameter_enable"], 1)
+                self.assertEqual(boxes[button]["mode"], 0)
+                self.assertEqual(boxes[button]["transition"], 2)
+                self.assertEqual(
+                    boxes[button]["saved_attribute_attributes"]["valueof"][
+                        "parameter_longname"
+                    ],
+                    f"Note Length {division}",
+                )
+                self.assertEqual(boxes[trigger]["text"], "t b b")
+                self.assertEqual(
+                    boxes[triplet]["text"], "set grid_is_triplet 0"
+                )
+                self.assertEqual(
+                    boxes[quantization]["text"],
+                    f"set grid_quantization {value}",
+                )
+                self.assertIn(((button, 0), (trigger, 0)), connections)
+                self.assertIn(((trigger, 1), (triplet, 0)), connections)
+                self.assertIn(((trigger, 0), (quantization, 0)), connections)
+                self.assertIn(((quantization, 0), ("obj-40", 0)), connections)
+                self.assertIn(((triplet, 0), ("obj-40", 0)), connections)
+
+        self.assertEqual(boxes["obj-21"]["text"], "live.path live_set view")
+        self.assertEqual(boxes["obj-25"]["text"], "property detail_clip")
+        self.assertEqual(boxes["obj-26"]["text"], "live.observer")
+        self.assertEqual(boxes["obj-32"]["text"], "get is_midi_clip")
+        self.assertEqual(boxes["obj-33"]["text"], "route is_midi_clip")
+        self.assertEqual(boxes["obj-34"]["text"], "== 1")
+        self.assertEqual(boxes["obj-37"]["text"], "get view")
+        self.assertNotIn("get grid_quantization", {box.get("text") for box in boxes.values()})
+        self.assertFalse(
+            any(box.get("text", "").startswith("print NL_") for box in boxes.values())
+        )
+        self.assertIn((("obj-24", 1), ("obj-26", 1)), connections)
+        self.assertIn((("obj-25", 0), ("obj-26", 0)), connections)
+        self.assertIn((("obj-26", 0), ("obj-27", 0)), connections)
+        self.assertIn((("obj-27", 0), ("obj-28", 0)), connections)
+        self.assertIn((("obj-28", 1), ("obj-29", 0)), connections)
+        self.assertIn((("obj-29", 1), ("obj-66", 0)), connections)
+        self.assertIn((("obj-66", 0), ("obj-30", 1)), connections)
+        self.assertIn((("obj-29", 0), ("obj-31", 0)), connections)
+        self.assertIn((("obj-32", 0), ("obj-30", 0)), connections)
+        self.assertIn((("obj-30", 0), ("obj-33", 0)), connections)
+        self.assertIn((("obj-33", 0), ("obj-34", 0)), connections)
+        self.assertIn((("obj-34", 0), ("obj-35", 0)), connections)
+        self.assertIn((("obj-35", 0), ("obj-36", 0)), connections)
+        self.assertIn((("obj-36", 0), ("obj-37", 0)), connections)
+        self.assertIn((("obj-37", 0), ("obj-30", 0)), connections)
+        self.assertIn((("obj-30", 0), ("obj-38", 0)), connections)
+        self.assertIn((("obj-38", 0), ("obj-39", 0)), connections)
+        self.assertIn((("obj-39", 0), ("obj-68", 0)), connections)
+        self.assertIn((("obj-68", 1), ("obj-69", 0)), connections)
+        self.assertIn((("obj-69", 1), ("obj-70", 0)), connections)
+        self.assertIn((("obj-70", 0), ("obj-40", 1)), connections)
+        self.assertEqual(boxes["obj-65"]["text"], "id 0")
+        self.assertIn((("obj-65", 0), ("obj-40", 1)), connections)
+
 
 if __name__ == "__main__":
     unittest.main()

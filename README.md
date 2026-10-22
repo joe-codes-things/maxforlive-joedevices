@@ -14,6 +14,12 @@ Key Map Mode, and turn off Live's Computer MIDI Keyboard (Musical Typing) so it
 does not intercept the shortcut. The latest build is
 [`devices/s-for-solo/v0.0.5/nla_S-for-Solo-v0.0.5.amxd`](devices/s-for-solo/v0.0.5/nla_S-for-Solo-v0.0.5.amxd).
 
+Note Length is an early step-input prototype for changing the active MIDI
+clip's grid, so the selected division is used for notes entered next. Map its
+six controls to Num Pad 1–6 in Key Map Mode. See
+[`devices/note-length/`](devices/note-length/) for the mapping and current
+limitations.
+
 ## Building a new version
 
 Each device is maintained in its own folder under `devices/`, with a
