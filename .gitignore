@@ -2,6 +2,7 @@
 __pycache__/
 .github/
 .githooks/
+# Keep planning notes local while allowing public docs such as CHANGE-LOG.md.
 /docs/BUGS.md
 /docs/FEATURE-IDEAS.md
 /docs/ONBOARDING.md
