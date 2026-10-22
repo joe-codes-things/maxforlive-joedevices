@@ -10,14 +10,23 @@ audio through unchanged.
 
 ## Building a new version
 
-Edit the latest versioned `.maxpat` in its version folder, then run:
+Each device is maintained in its own top-level folder with a `device.json`
+manifest defining its display name and build filename prefix. Edit the latest
+versioned `.maxpat` in that device's version folder, then pass the device
+folder to the build script:
 
 ```sh
-python3 scripts/build_device.py
+python3 scripts/build_device.py track-select-auto-arm
 ```
 
-The build creates a new version folder containing a matching `.maxpat` source
-and `.amxd` device. Builds use the `nla_Track-Select-Auto-Arm-vX.Y.Z` filename
-convention (for example, `track-select-auto-arm/v0.0.4/nla_Track-Select-Auto-Arm-v0.0.4.amxd`).
-The patch version increments automatically, and existing builds are never
-overwritten.
+The script versions each device independently and creates a new folder
+containing its matching `.maxpat` source and `.amxd` device. For example, the
+Track Select Auto Arm build is
+`track-select-auto-arm/v0.0.4/nla_Track-Select-Auto-Arm-v0.0.4.amxd`.
+Existing builds are never overwritten.
+
+To add a device, create a folder with a `device.json` containing its display
+`name` and a `build_prefix` in the `nla_<Device-Name>-v` form, then put one
+initial `.maxpat` source in that folder. Running the builder for that folder
+creates its v0.0.1 build. See `track-select-auto-arm/device.json` for an
+example manifest.
