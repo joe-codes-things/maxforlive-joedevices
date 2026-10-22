@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DEVICE_DIR = PROJECT_ROOT / "track-select-auto-arm"
+DEFAULT_DEVICE_DIR = PROJECT_ROOT / "devices" / "track-select-auto-arm"
 DEVICE_CONFIG = "device.json"
 VERSION_PATTERN = r"(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)"
 AMXD_HEADER = (
@@ -171,7 +171,10 @@ def main() -> int:
         nargs="?",
         type=Path,
         default=DEFAULT_DEVICE_DIR,
-        help="Device folder containing device.json (default: track-select-auto-arm).",
+        help=(
+            "Device folder containing device.json "
+            "(default: devices/track-select-auto-arm)."
+        ),
     )
     parser.add_argument(
         "--source",

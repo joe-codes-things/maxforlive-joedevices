@@ -6,12 +6,19 @@ from pathlib import Path
 
 from scripts.build_device import (
     DEFAULT_DEVICE_DIR,
+    PROJECT_ROOT,
     build_device,
     write_new_files,
 )
 
 
 class BuildDeviceTests(unittest.TestCase):
+    def test_default_device_dir_uses_devices_folder(self) -> None:
+        self.assertEqual(
+            DEFAULT_DEVICE_DIR.relative_to(PROJECT_ROOT),
+            Path("devices/track-select-auto-arm"),
+        )
+
     @staticmethod
     def create_device(
         device_dir: Path,
@@ -168,7 +175,7 @@ class BuildDeviceTests(unittest.TestCase):
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
-            arm_dir = self.create_device(root / "track-select-auto-arm")
+            arm_dir = self.create_device(root / "devices" / "track-select-auto-arm")
             arm_source_dir = arm_dir / "v0.0.3"
             arm_source_dir.mkdir()
             (arm_source_dir / "Track Select Auto Arm v0.0.3.maxpat").write_text(
