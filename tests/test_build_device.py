@@ -399,6 +399,74 @@ class BuildDeviceTests(unittest.TestCase):
             self.assertIn("Single-Bar-Jump ERROR:", script)
             self.assertIn("script loaded; Back and Forward controls ready", script)
 
+    def test_locators_device_build_packages_controls_and_diagnostics(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "locators-markers-create-navigate"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Locators (Markers) Create Navigate",
+                build_prefix="nla_Locators-Markers-Create-Navigate-v",
+            )
+            (device_dir / "Locators (Markers) Create Navigate.maxpat").write_bytes(
+                (source_dir / "Locators (Markers) Create Navigate.maxpat").read_bytes()
+            )
+            script_source = source_dir / "locators_markers_create_navigate.js"
+            (device_dir / script_source.name).write_bytes(script_source.read_bytes())
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name,
+                "nla_Locators-Markers-Create-Navigate-v0.0.1.maxpat",
+            )
+            self.assertEqual(
+                device_path.name,
+                "nla_Locators-Markers-Create-Navigate-v0.0.1.amxd",
+            )
+            self.assertEqual(
+                (patch_path.parent / script_source.name).read_bytes(),
+                script_source.read_bytes(),
+            )
+
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            patcher = patch_data["patcher"]
+            boxes = {
+                entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]
+            }
+            self.assertIn("Set/Delete to `", boxes["obj-2"]["text"])
+            self.assertIn("Num Pad 7", boxes["obj-2"]["text"])
+            self.assertIn("Num Pad 9", boxes["obj-2"]["text"])
+            self.assertIn("without starting playback", boxes["obj-3"]["text"])
+            for button_id in ("obj-5", "obj-9", "obj-13"):
+                self.assertEqual(boxes[button_id]["maxclass"], "live.button")
+                self.assertEqual(boxes[button_id]["transition"], 2)
+                self.assertEqual(boxes[button_id]["mode"], 0)
+            self.assertEqual(boxes["obj-7"]["text"], "0")
+            self.assertEqual(boxes["obj-11"]["text"], "-1")
+            self.assertEqual(boxes["obj-15"]["text"], "1")
+            connections = {
+                (
+                    tuple(line["patchline"]["source"]),
+                    tuple(line["patchline"]["destination"]),
+                )
+                for line in patcher["lines"]
+            }
+            self.assertIn((("obj-5", 0), ("obj-6", 0)), connections)
+            self.assertIn((("obj-7", 0), ("obj-16", 0)), connections)
+            self.assertIn((("obj-9", 0), ("obj-10", 0)), connections)
+            self.assertIn((("obj-11", 0), ("obj-16", 0)), connections)
+            self.assertIn((("obj-13", 0), ("obj-14", 0)), connections)
+            self.assertIn((("obj-15", 0), ("obj-16", 0)), connections)
+            self.assertIn((("obj-16", 0), ("obj-17", 0)), connections)
+
+            script = script_source.read_text(encoding="utf-8")
+            self.assertIn('song.call("set_or_delete_cue")', script)
+            self.assertIn('song.getcount("cue_points")', script)
+            self.assertIn('song.set("current_song_time", targetPosition)', script)
+            self.assertIn("Transport state changed unexpectedly", script)
+            self.assertIn("Locators-Markers-Create-Navigate ERROR:", script)
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

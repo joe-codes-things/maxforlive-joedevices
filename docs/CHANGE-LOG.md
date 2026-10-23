@@ -2,6 +2,23 @@
 
 All notable changes to the devices in this repository are documented here.
 
+## Locators (Markers) Create Navigate
+
+### v0.0.2
+
+- Updated the Previous and Next Locator mapping instructions to Num Pad 7 and
+  Num Pad 9. Set/Delete Locator remains mapped to backtick (`).
+- Confirmed by the user that the device works in Live.
+
+### v0.0.1
+
+- Added Set/Delete Locator, Previous Locator, and Next Locator controls with
+  Max Console diagnostics.
+- Used the Live Object Model's `set_or_delete_cue`, `cue_points`, and
+  `current_song_time` APIs; navigation checks transport state and does not call
+  Live's locator buttons that launch playback.
+- Documented the initial backtick and Option+Arrow Key Map Mode assignments.
+
 ## Single Bar Jump
 
 ### v0.0.4
