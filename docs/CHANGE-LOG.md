@@ -34,6 +34,26 @@ All notable changes to the devices in this repository are documented here.
   `Detail/DeviceChain` view through the documented Application.View API.
 - Documented mapping the button to lowercase `x` in Key Map Mode.
 
+## Back to Start
+
+### v0.0.2
+
+- Set both `Song.current_song_time` (Scrub Area position) and `Song.start_time`
+  (Play Start Indicator) to beat 0, then verify both values and transport
+  state.
+- Confirmed working in Live: both Arrangement positions return to bar 1 without
+  starting or stopping playback.
+
+### v0.0.1
+
+- Added a key-mappable control to set the global Arrangement position to beat
+  0 through `Song.current_song_time`, without calling playback or clip-launch
+  functions.
+- Added Max Console diagnostics for transport state, current position, and an
+  open Detail View clip.
+- Documented that scrolling an open clip editor to its beginning is not
+  available through the documented Clip View API.
+
 ## S for Solo
 
 ### v0.0.5

@@ -57,6 +57,13 @@ This behavior has been confirmed working in Live. See
 [`devices/show-device-view/`](devices/show-device-view/) for setup and API
 details.
 
+Back to Start v0.0.2 provides a key-mappable button that moves both Live's
+Scrub Area position and Play Start Indicator to bar 1 without starting
+playback. This version has been confirmed working in Live. Map its Start
+button to Num Pad 0 in Key Map Mode. It does not scroll an open clip editor;
+see [`devices/back-to-start/`](devices/back-to-start/) for setup, diagnostics,
+and API details.
+
 ## Building a new version
 
 Each device is maintained in its own folder under `devices/`, with a

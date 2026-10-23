@@ -294,6 +294,48 @@ class BuildDeviceTests(unittest.TestCase):
                 )
             )
 
+    def test_back_to_start_build_packages_live_api_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "back-to-start"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Back to Start",
+                build_prefix="nla_Back-To-Start-v",
+            )
+            (device_dir / "Back to Start.maxpat").write_bytes(
+                (source_dir / "Back to Start.maxpat").read_bytes()
+            )
+            (device_dir / "back_to_start.js").write_bytes(
+                (source_dir / "back_to_start.js").read_bytes()
+            )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Back-To-Start-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Back-To-Start-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / "back_to_start.js").read_bytes(),
+                (source_dir / "back_to_start.js").read_bytes(),
+            )
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            ui_text = "\n".join(
+                entry["box"].get("text", "")
+                for entry in patch_data["patcher"]["boxes"]
+            )
+            self.assertIn("Scrub Area", ui_text)
+            self.assertIn("Play Start Indicator", ui_text)
+            self.assertTrue(
+                any(
+                    "Num Pad 0" in entry["box"].get("text", "")
+                    for entry in patch_data["patcher"]["boxes"]
+                )
+            )
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
