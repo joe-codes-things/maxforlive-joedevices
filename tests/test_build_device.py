@@ -906,13 +906,13 @@ class BuildDeviceTests(unittest.TestCase):
         self.assertIn((("obj-24", 0), ("obj-15", 0)), connections)
         self.assertIn((("obj-24", 1), ("obj-15", 0)), connections)
 
-    def test_note_length_controls_map_to_expected_grid_divisions(self) -> None:
+    def test_grid_size_controls_map_to_expected_grid_divisions(self) -> None:
         patch_path = (
             PROJECT_ROOT
             / "devices"
-            / "note-length"
+            / "grid-size"
             / "v0.0.9"
-            / "nla_Note-Length-v0.0.9.maxpat"
+            / "nla_Grid-Size-v0.0.9.maxpat"
         )
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
@@ -945,7 +945,7 @@ class BuildDeviceTests(unittest.TestCase):
                     boxes[button]["saved_attribute_attributes"]["valueof"][
                         "parameter_longname"
                     ],
-                    f"Note Length {division}",
+                    f"Grid Size {division}",
                 )
                 self.assertEqual(boxes[trigger]["text"], "t b b")
                 self.assertEqual(
@@ -995,6 +995,88 @@ class BuildDeviceTests(unittest.TestCase):
         self.assertIn((("obj-70", 0), ("obj-40", 1)), connections)
         self.assertEqual(boxes["obj-65"]["text"], "id 0")
         self.assertIn((("obj-65", 0), ("obj-40", 1)), connections)
+
+    def test_set_note_lengths_build_packages_selected_note_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "set-note-lengths"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Set Note Lengths",
+                build_prefix="nla_Set-Note-Lengths-v",
+            )
+            (device_dir / "Set Note Lengths.maxpat").write_bytes(
+                (source_dir / "Set Note Lengths.maxpat").read_bytes()
+            )
+            script_source = source_dir / "set_note_lengths.js"
+            (device_dir / script_source.name).write_bytes(script_source.read_bytes())
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Set-Note-Lengths-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Set-Note-Lengths-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / script_source.name).read_bytes(),
+                script_source.read_bytes(),
+            )
+
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            patcher = patch_data["patcher"]
+            boxes = {
+                entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]
+            }
+            self.assertEqual(boxes["obj-4"]["maxclass"], "live.button")
+            self.assertEqual(boxes["obj-4"]["transition"], 2)
+            self.assertIn("lowercase l", boxes["obj-2"]["text"])
+            self.assertIn("note starts stay unchanged", boxes["obj-3"]["text"])
+            self.assertEqual(boxes["obj-5"]["text"], "deferlow")
+            self.assertEqual(boxes["obj-6"]["text"], "js set_note_lengths.js")
+
+            script = script_source.read_text(encoding="utf-8")
+            self.assertIn('clip.call("get_selected_notes_extended")', script)
+            self.assertIn('clip.call("apply_note_modifications", modificationDict)', script)
+            self.assertIn('clipView.get("grid_quantization")', script)
+            self.assertIn('clipView.get("grid_is_triplet")', script)
+            self.assertIn("Set-Note-Lengths ERROR:", script)
+            self.assertIn("v0.0.1 loaded", script)
+
+    def test_latest_keyboard_devices_include_mapping_reminder(self) -> None:
+        builds = [
+            PROJECT_ROOT
+            / "devices"
+            / "set-note-lengths"
+            / "v0.0.2"
+            / "nla_Set-Note-Lengths-v0.0.2",
+            PROJECT_ROOT
+            / "devices"
+            / "s-for-solo"
+            / "v0.0.6"
+            / "nla_S-For-Solo-v0.0.6",
+        ]
+
+        for build_path in builds:
+            with self.subTest(build=build_path):
+                patch_path = build_path.with_name(build_path.name + ".maxpat")
+                device_path = build_path.with_name(build_path.name + ".amxd")
+                patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+                boxes = patch_data["patcher"]["boxes"]
+                ui_text = " ".join(
+                    box["box"].get("text", "") for box in boxes
+                ).lower()
+                self.assertIn("computer midi keyboard", ui_text)
+                self.assertIn("turn off", ui_text)
+
+                package = device_path.read_bytes()
+                self.assertEqual(package[24:28], b"ptch")
+                payload_length = struct.unpack("<I", package[28:32])[0]
+                embedded_patch = json.loads(
+                    package[32 : 32 + payload_length].rstrip(b"\0")
+                )
+                self.assertEqual(embedded_patch, patch_data)
 
 
 if __name__ == "__main__":

@@ -8,17 +8,27 @@ patch and packaged device are in
 Max Audio Effect on the Master track to monitor global track selection while
 passing audio through unchanged.
 
-S for Solo provides a key-mappable Solo control for selected tracks. Add its
-`.amxd` device to a Live Set, map the device's Solo control to lowercase `s` in
-Key Map Mode, and turn off Live's Computer MIDI Keyboard (Musical Typing) so it
-does not intercept the shortcut. The latest build is
-[`devices/s-for-solo/v0.0.5/nla_S-For-Solo-v0.0.5.amxd`](devices/s-for-solo/v0.0.5/nla_S-For-Solo-v0.0.5.amxd).
+S for Solo v0.0.6 provides a key-mappable Solo control for selected tracks.
+Add its `.amxd` device to a Live Set, map the device's Solo control to
+lowercase `s` in Key Map Mode, and turn off Live's Computer MIDI Keyboard
+(Musical Typing) before using the mapping. The latest build is
+[`devices/s-for-solo/v0.0.6/nla_S-For-Solo-v0.0.6.amxd`](devices/s-for-solo/v0.0.6/nla_S-For-Solo-v0.0.6.amxd).
 
-Note Length is an early step-input prototype for changing the active MIDI
-clip's grid, so the selected division is used for notes entered next. Map its
-six controls to Num Pad 1–6 in Key Map Mode. See
-[`devices/note-length/`](devices/note-length/) for the mapping and current
-limitations.
+Grid Size v0.0.10 changes the active MIDI clip's grid, so the selected division
+is used for notes entered next during step input. Map its six controls to Num
+Pad 1–6 in Key Map Mode. It was renamed from Note Length to distinguish grid
+selection from setting existing note durations. See
+[`devices/grid-size/`](devices/grid-size/) for setup and details.
+
+Set Note Lengths v0.0.2 sets selected MIDI note durations to the active clip's
+current grid. Select notes in the MIDI Note Editor and map its Set Lengths
+button to lowercase `l` in Key Map Mode. It preserves note start times and
+other note properties. Turn off Computer MIDI Keyboard (Musical Typing) before
+using the mapping. This behavior has been confirmed in Live. The latest build
+is [`Set Note Lengths v0.0.2`](devices/set-note-lengths/v0.0.2/nla_Set-Note-Lengths-v0.0.2.amxd).
+See
+[`devices/set-note-lengths/`](devices/set-note-lengths/) for setup and
+diagnostics.
 
 M for Mute provides a key-mappable Mute control for selected tracks. Add the
 device to a Live Set and map its Mute button to lowercase `m` in Key Map Mode.

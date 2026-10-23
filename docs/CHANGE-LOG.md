@@ -2,6 +2,31 @@
 
 All notable changes to the devices in this repository are documented here.
 
+## Set Note Lengths
+
+### v0.0.2
+
+- Added an on-device reminder to turn off Computer MIDI Keyboard before using
+  the `l` mapping.
+
+### v0.0.1
+
+- Added a lowercase-`l` mapped control that sets selected MIDI note durations
+  to the active clip's current straight or triplet grid size.
+- Added Max Console diagnostics for startup, active clip/grid, selected note
+  count, per-note duration changes, and errors.
+- Preserves selected note start times and other note properties. Confirmed
+  working by the user in Live.
+
+## Grid Size (formerly Note Length)
+
+### v0.0.10
+
+- Renamed the existing Note Length grid-selection device to Grid Size and
+  updated its local build names and labels to distinguish it from Set Note
+  Lengths.
+- Kept its existing six divisions and Num Pad 1–6 mappings.
+
 ## Locators (Markers) Create Navigate
 
 ### v0.0.3
@@ -118,6 +143,11 @@ All notable changes to the devices in this repository are documented here.
   available through the documented Clip View API.
 
 ## S for Solo
+
+### v0.0.6
+
+- Clarified in the device UI that Computer MIDI Keyboard must be turned off
+  before using the lowercase-`s` mapping.
 
 ### v0.0.5
 

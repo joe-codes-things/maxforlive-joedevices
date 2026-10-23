@@ -186,7 +186,7 @@ function gridSizeInBeats(quantization, isTriplet) {
         throw new Error(
             "Unsupported grid_quantization value " +
                 quantization +
-                "; expected a Note Length division from 1/1 through 1/32"
+                "; expected a Grid Size division from 1/1 through 1/32"
         );
     }
 

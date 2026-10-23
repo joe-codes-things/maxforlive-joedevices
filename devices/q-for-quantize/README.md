@@ -6,7 +6,7 @@ the device's **Quantize** button to lowercase `q` in Key Map Mode. Pressing the
 mapped key snaps only the selected notes' start times to the active clip grid.
 Note lengths and unselected notes are left unchanged.
 
-Use the Note Length device or Live's grid controls to choose the grid. The
+Use the Grid Size device or Live's grid controls to choose the grid. The
 device supports MIDI clips shown in Detail View, including Arrangement clips;
 it does not change or invoke the built-in Transform panel. If no MIDI clip or
 no selected notes are available, it makes no note changes.

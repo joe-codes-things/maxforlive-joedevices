@@ -21,11 +21,14 @@
 - **Workaround**: Update Live to 12.4.3 or later, then test v0.0.4. Do not
   consider the device working until the editor toggle is confirmed in Live.
 
-### B002 — Note Length grid-selection indicators are not mutually exclusive
+### B002 — Grid Size selection indicators are not mutually exclusive
 
-- **Device**: Note Length (`devices/note-length/`)
+- **Device**: Grid Size (`devices/grid-size/`), formerly Note Length
 - **Status**: Open
-- **Device version(s)**: v0.0.9 (indicator behavior); v0.0.10 (failed attempted fix)
+- **Device version(s)**: Note Length v0.0.9 (indicator behavior); legacy
+  Note Length v0.0.10 (failed attempted fix, withdrawn). The renamed Grid Size
+  v0.0.10 is rebuilt from the working v0.0.9 source and does not include that
+  failed UI-state change.
 - **Environment**: Ableton Live and Max for Live; exact versions and OS not
   recorded
 - **Steps to reproduce**: In v0.0.9, press one mapped grid key and then a
