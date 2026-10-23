@@ -148,6 +148,9 @@ All notable changes to the devices in this repository are documented here.
 
 - Clarified in the device UI that Computer MIDI Keyboard must be turned off
   before using the lowercase-`s` mapping.
+- A later user report found that Solo did not work as expected while v0.0.5
+  or v0.0.6 remained loaded after mapping `s`; removing the device restored
+  Solo behavior. The cause is under investigation.
 
 ### v0.0.5
 

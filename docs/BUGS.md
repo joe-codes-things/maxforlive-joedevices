@@ -2,6 +2,34 @@
 
 ## Current bugs
 
+### B004 — S for Solo key mapping interferes with Solo behavior
+
+- **Device**: S for Solo (`devices/s-for-solo/`)
+- **Status**: Open
+- **Device version(s)**: v0.0.5 and v0.0.6
+- **Environment**: Ableton Live and Max for Live; exact versions and OS not
+  recorded
+- **Steps to reproduce**: Add S for Solo to a Live Set and map lowercase `s`
+  to its Solo control in Key Map Mode. Soloing does not work as expected while
+  the device remains loaded. Delete the device from Device View; normal Solo
+  behavior then works for both single tracks and individual tracks. The user
+  reports the same behavior in a newly created and saved Set.
+- **Expected behavior**: The mapped control solos the selected track, and
+  Live's Solo behavior remains available as expected while the device is
+  loaded.
+- **Actual behavior**: The user reports Solo does not work until the device is
+  deleted. After deletion, Solo works for single tracks and individual tracks.
+- **Investigation**: The key mapping may be intercepting `s` while the device
+  is loaded, or the mapped button's toggle-state trigger may fail to emit the
+  expected action. Both v0.0.5 and v0.0.6 use a toggle-mode button whose
+  trigger path selects only value `1`, ignoring value `0`; this could make
+  behavior depend on button state. These are hypotheses, not confirmed causes.
+  To distinguish them, test whether unmapping `s` while leaving the device
+  loaded restores normal Solo behavior, and whether clicking the device's
+  button manually solos the selected track consistently.
+- **Workaround**: Remove the device to restore the user's reported Solo
+  behavior.
+
 ### B003 — Show VST Instrument requires a newer Live version
 
 - **Device**: Show VST Instrument (`devices/show-vst-instrument/`)
@@ -20,31 +48,6 @@
   API workaround for Live 12.3.5 was found.
 - **Workaround**: Update Live to 12.4.3 or later, then test v0.0.4. Do not
   consider the device working until the editor toggle is confirmed in Live.
-
-### B002 — Grid Size selection indicators are not mutually exclusive
-
-- **Device**: Grid Size (`devices/grid-size/`), formerly Note Length
-- **Status**: Open
-- **Device version(s)**: Note Length v0.0.9 (indicator behavior); legacy
-  Note Length v0.0.10 (failed attempted fix, withdrawn). The renamed Grid Size
-  v0.0.10 is rebuilt from the working v0.0.9 source and does not include that
-  failed UI-state change.
-- **Environment**: Ableton Live and Max for Live; exact versions and OS not
-  recorded
-- **Steps to reproduce**: In v0.0.9, press one mapped grid key and then a
-  different mapped grid key. Observe the device's six oval indicators.
-- **Expected behavior**: Only the oval for the most recently selected grid
-  division is lit, while all six keys continue to change the grid when pressed.
-- **Actual behavior**: The controls toggle independently, so more than one oval
-  can remain lit. In v0.0.10, an attempted silent UI reset-and-select update
-  made the device unusable; the user reported that build as completely broken.
-- **Investigation**: v0.0.10 attempted to synchronize the six parameterized
-  `live.button` controls by sending silent `set` messages after a selection.
-  The exact runtime failure has not been isolated. That UI-state synchronization
-  approach was removed, and the source was restored to the user-confirmed
-  working v0.0.9 behavior.
-- **Workaround**: Use v0.0.9 for grid selection. Its grid changes work, but the
-  oval indicators may not represent one exclusive active selection.
 
 ## Bugs resolved
 
@@ -71,7 +74,7 @@
 
 ## Reporting format
 
-Assign the next available ID (`B001`, `B002`, ...). Include:
+Assign the next unused sequential ID (currently `B005`). Include:
 
 - **Title**
 - **Device**

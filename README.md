@@ -13,6 +13,9 @@ Add its `.amxd` device to a Live Set, map the device's Solo control to
 lowercase `s` in Key Map Mode, and turn off Live's Computer MIDI Keyboard
 (Musical Typing) before using the mapping. The latest build is
 [`devices/s-for-solo/v0.0.6/nla_S-For-Solo-v0.0.6.amxd`](devices/s-for-solo/v0.0.6/nla_S-For-Solo-v0.0.6.amxd).
+The user has since reported that Solo does not work as expected with v0.0.5
+or v0.0.6 loaded after mapping `s`; removing the device restores Solo
+behavior. The cause is under investigation; see the device README.
 
 Grid Size v0.0.10 changes the active MIDI clip's grid, so the selected division
 is used for notes entered next during step input. Map its six controls to Num
