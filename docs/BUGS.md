@@ -2,6 +2,25 @@
 
 ## Current bugs
 
+### B003 — Show VST Instrument requires a newer Live version
+
+- **Device**: Show VST Instrument (`devices/show-vst-instrument/`)
+- **Status**: Open
+- **Device version(s)**: v0.0.1-v0.0.4
+- **Environment**: Ableton Live 12.3.5, Max for Live; macOS
+- **Steps to reproduce**: Load the device on a MIDI track with a VST
+  instrument and press its mapped lowercase `e` button.
+- **Expected behavior**: The selected track's first VST instrument editor
+  opens or closes.
+- **Actual behavior**: Live 12.3.5 reports that `PluginDevice` has no
+  `is_editor_open` attribute. The device cannot control the plug-in window.
+- **Investigation**: The current Cycling '74 API documents the property, but
+  does not specify its introduction version. An independent Max for Live
+  implementation gates it on Live 12.4.3 or later. No documented per-device
+  API workaround for Live 12.3.5 was found.
+- **Workaround**: Update Live to 12.4.3 or later, then test v0.0.4. Do not
+  consider the device working until the editor toggle is confirmed in Live.
+
 ### B002 — Note Length grid-selection indicators are not mutually exclusive
 
 - **Device**: Note Length (`devices/note-length/`)

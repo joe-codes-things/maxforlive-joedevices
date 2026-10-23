@@ -229,6 +229,35 @@ class BuildDeviceTests(unittest.TestCase):
                 (source_dir / "q_for_quantize.js").read_bytes(),
             )
 
+    def test_show_vst_instrument_build_packages_live_api_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "show-vst-instrument"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Show VST Instrument",
+                build_prefix="nla_Show-VST-Instrument-v",
+            )
+            (device_dir / "Show VST Instrument.maxpat").write_bytes(
+                (source_dir / "Show VST Instrument.maxpat").read_bytes()
+            )
+            (device_dir / "show_vst_instrument.js").write_bytes(
+                (source_dir / "show_vst_instrument.js").read_bytes()
+            )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Show-VST-Instrument-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Show-VST-Instrument-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / "show_vst_instrument.js").read_bytes(),
+                (source_dir / "show_vst_instrument.js").read_bytes(),
+            )
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

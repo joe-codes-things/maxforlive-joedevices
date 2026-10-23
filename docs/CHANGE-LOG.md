@@ -2,6 +2,17 @@
 
 All notable changes to the devices in this repository are documented here.
 
+## Show VST Instrument
+
+### v0.0.4
+
+- Added a Live version and `is_editor_open` availability check before accessing
+  the plug-in editor property.
+- Research indicates this property requires Live 12.4.3 or later. The user's
+  Live 12.3.5 test confirmed that the property is unavailable there.
+- The device remains in development. Its intended editor toggle still requires
+  validation in Live 12.4.3 or later.
+
 ## S for Solo
 
 ### v0.0.5
