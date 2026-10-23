@@ -22,7 +22,7 @@
   ],
   "openinpresentation": 1,
   "devicewidth": 600.0,
-  "description": "Create and navigate Arrangement locators",
+  "description": "Create locators and navigate the cursor and playback start position",
   "digest": "Map Create to `, Back to Num Pad 7, and Forward to Num Pad 9",
   "tags": "locators, Arrangement, navigation, key map, diagnostic",
   "title": "Locators (Markers) Create Navigate",
@@ -80,7 +80,7 @@
     "box": {
      "id": "obj-3",
      "maxclass": "comment",
-     "text": "Navigation moves the Arrangement playhead without starting playback.",
+     "text": "Navigation moves the Arrangement cursor and Play Start Indicator without starting playback.",
      "patching_rect": [
       20.0,
       80.0,

@@ -464,6 +464,8 @@ class BuildDeviceTests(unittest.TestCase):
             self.assertIn('song.call("set_or_delete_cue")', script)
             self.assertIn('song.getcount("cue_points")', script)
             self.assertIn('song.set("current_song_time", targetPosition)', script)
+            self.assertIn('song.set("start_time", targetPosition)', script)
+            self.assertIn('song.get("start_time")', script)
             self.assertIn("Transport state changed unexpectedly", script)
             self.assertIn("Locators-Markers-Create-Navigate ERROR:", script)
 

@@ -6,7 +6,7 @@ var POSITION_TOLERANCE = 0.000001;
 
 function loadbang() {
     post(
-        "Locators-Markers-Create-Navigate: v0.0.1 loaded; " +
+        "Locators-Markers-Create-Navigate: v0.0.3 loaded; " +
             "Create, Previous, and Next controls ready\n"
     );
 }
@@ -82,6 +82,7 @@ function navigateLocator(song, direction, wasPlaying) {
         currentPosition,
         direction
     );
+    var currentStartPosition = numericValue(song.get("start_time"), "start_time");
     var directionName = direction < 0 ? "previous" : "next";
 
     post(
@@ -91,6 +92,9 @@ function navigateLocator(song, direction, wasPlaying) {
         currentPosition,
         " beat(s), locator count=",
         cuePointCount,
+        ", Play Start Indicator=",
+        currentStartPosition,
+        " beat(s)",
         "\n"
     );
 
@@ -102,9 +106,14 @@ function navigateLocator(song, direction, wasPlaying) {
         );
         return;
     }
-    if (Math.abs(targetPosition - currentPosition) <= POSITION_TOLERANCE) {
+    var shouldMoveCursor =
+        Math.abs(targetPosition - currentPosition) > POSITION_TOLERANCE;
+    var shouldMovePlayStart =
+        Math.abs(targetPosition - currentStartPosition) > POSITION_TOLERANCE;
+    if (!shouldMoveCursor && !shouldMovePlayStart) {
         post(
-            "Locators-Markers-Create-Navigate: already at the ",
+            "Locators-Markers-Create-Navigate: cursor and Play Start Indicator " +
+                "are already at the ",
             directionName,
             " locator position ",
             targetPosition,
@@ -113,7 +122,32 @@ function navigateLocator(song, direction, wasPlaying) {
         return;
     }
 
-    song.set("current_song_time", targetPosition);
+    if (shouldMovePlayStart) {
+        post(
+            "Locators-Markers-Create-Navigate: setting Play Start Indicator ",
+            currentStartPosition,
+            " -> ",
+            targetPosition,
+            " beat(s)\n"
+        );
+        song.set("start_time", targetPosition);
+    }
+    if (shouldMoveCursor) {
+        song.set("current_song_time", targetPosition);
+    }
+    var resultingStartPosition = numericValue(
+        song.get("start_time"),
+        "start_time after set"
+    );
+    if (Math.abs(resultingStartPosition - targetPosition) > POSITION_TOLERANCE) {
+        throw new Error(
+            "Live did not move the Play Start Indicator to " +
+                targetPosition +
+                " beats (read back " +
+                resultingStartPosition +
+                " beats)"
+        );
+    }
     var resultingPosition = numericValue(
         song.get("current_song_time"),
         "current_song_time after set"
@@ -125,7 +159,9 @@ function navigateLocator(song, direction, wasPlaying) {
         directionName,
         " locator at ",
         targetPosition,
-        " beat(s); immediate current_song_time readback=",
+        " beat(s); Play Start Indicator=",
+        resultingStartPosition,
+        " beat(s), immediate current_song_time readback=",
         resultingPosition,
         " beat(s); transport remains ",
         wasPlaying === 1 ? "playing" : "stopped",

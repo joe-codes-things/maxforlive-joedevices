@@ -4,6 +4,15 @@ All notable changes to the devices in this repository are documented here.
 
 ## Locators (Markers) Create Navigate
 
+### v0.0.3
+
+- Move the Arrangement Play Start Indicator (`Song.start_time`) together with
+  the cursor (`Song.current_song_time`) when navigating to an adjacent locator.
+- Confirmed by the user: pressing Space after navigation starts playback from
+  the newly selected locator.
+- Added Play Start Indicator readback validation and a transport-state check so
+  navigation does not start or stop playback.
+
 ### v0.0.2
 
 - Updated the Previous and Next Locator mapping instructions to Num Pad 7 and

@@ -73,12 +73,13 @@ single-press behavior work in Live. See
 and remaining limitations. The buttons emit on either state transition,
 following the working mapped-button pattern used by the other devices.
 
-Locators (Markers) Create Navigate v0.0.2 provides a Set/Delete Locator
+Locators (Markers) Create Navigate v0.0.3 provides a Set/Delete Locator
 control and Previous/Next Locator controls for Arrangement. Map Set/Delete to
 backtick (`), Previous to Num Pad 7, and Next to Num Pad 9 in Key Map Mode.
-Navigation moves the Arrangement playhead directly to an adjacent locator
-without starting playback. The user confirmed that the device works in Live;
-see
+Navigation moves both the Arrangement playhead and Play Start Indicator to an
+adjacent locator, so playback started with Space begins there. It does this
+without starting playback during navigation. The user confirmed that the
+device works in Live; see
 [`devices/locators-markers-create-navigate/`](devices/locators-markers-create-navigate/)
 for setup and diagnostics.
 
