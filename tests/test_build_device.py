@@ -1,4 +1,5 @@
 import json
+import re
 import struct
 import tempfile
 import unittest
@@ -198,6 +199,36 @@ class BuildDeviceTests(unittest.TestCase):
             patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
             self.assertEqual(patch_data["patcher"]["description"], "New Device v0.0.1")
 
+    def test_q_for_quantize_build_packages_live_api_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "q-for-quantize"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Q for Quantize",
+                build_prefix="nla_Q-For-Quantize-v",
+            )
+            (device_dir / "Q for Quantize.maxpat").write_bytes(
+                (source_dir / "Q for Quantize.maxpat").read_bytes()
+            )
+            (device_dir / "q_for_quantize.js").write_bytes(
+                (source_dir / "q_for_quantize.js").read_bytes()
+            )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Q-For-Quantize-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Q-For-Quantize-v0.0.1.amxd"
+            )
+            packaged_script = patch_path.parent / "q_for_quantize.js"
+            self.assertEqual(
+                packaged_script.read_bytes(),
+                (source_dir / "q_for_quantize.js").read_bytes(),
+            )
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
@@ -231,7 +262,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.1"
-            / "nla_M-for-Mute-v0.0.1.maxpat"
+            / "nla_M-For-Mute-v0.0.1.maxpat"
         )
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
@@ -278,7 +309,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.1"
-            / "nla_M-for-Mute-v0.0.1.amxd"
+            / "nla_M-For-Mute-v0.0.1.amxd"
         ).read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
@@ -291,7 +322,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.2"
-            / "nla_M-for-Mute-v0.0.2.maxpat"
+            / "nla_M-For-Mute-v0.0.2.maxpat"
         )
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
@@ -332,7 +363,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.2"
-            / "nla_M-for-Mute-v0.0.2.amxd"
+            / "nla_M-For-Mute-v0.0.2.amxd"
         ).read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
@@ -345,7 +376,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.3"
-            / "nla_M-for-Mute-v0.0.3.maxpat"
+            / "nla_M-For-Mute-v0.0.3.maxpat"
         )
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
@@ -392,7 +423,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.3"
-            / "nla_M-for-Mute-v0.0.3.amxd"
+            / "nla_M-For-Mute-v0.0.3.amxd"
         ).read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
@@ -405,7 +436,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.4"
-            / "nla_M-for-Mute-v0.0.4.maxpat"
+            / "nla_M-For-Mute-v0.0.4.maxpat"
         )
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
@@ -436,7 +467,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.4"
-            / "nla_M-for-Mute-v0.0.4.amxd"
+            / "nla_M-For-Mute-v0.0.4.amxd"
         ).read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
@@ -445,7 +476,7 @@ class BuildDeviceTests(unittest.TestCase):
 
     def test_m_for_mute_v0_0_5_uses_retriggerable_button_and_liveapi_script(self) -> None:
         version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.5"
-        patch_path = version_dir / "nla_M-for-Mute-v0.0.5.maxpat"
+        patch_path = version_dir / "nla_M-For-Mute-v0.0.5.maxpat"
         patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
         patcher = patch_data["patcher"]
         boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
@@ -465,7 +496,7 @@ class BuildDeviceTests(unittest.TestCase):
         self.assertIn((("obj-10", 0), ("obj-11", 0)), connections)
         self.assertTrue((version_dir / "m_for_mute.js").is_file())
 
-        package = (version_dir / "nla_M-for-Mute-v0.0.5.amxd").read_bytes()
+        package = (version_dir / "nla_M-For-Mute-v0.0.5.amxd").read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
         embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
@@ -486,7 +517,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.6"
-            / "nla_M-for-Mute-v0.0.6.maxpat"
+            / "nla_M-For-Mute-v0.0.6.maxpat"
         )
 
         self.assertIn('new LiveAPI(apiCallback, "live_set")', script)
@@ -505,7 +536,7 @@ class BuildDeviceTests(unittest.TestCase):
             / "devices"
             / "m-for-mute"
             / "v0.0.6"
-            / "nla_M-for-Mute-v0.0.6.amxd"
+            / "nla_M-For-Mute-v0.0.6.amxd"
         ).read_bytes()
         self.assertEqual(package[24:28], b"ptch")
         payload_length = struct.unpack("<I", package[28:32])[0]
@@ -516,12 +547,12 @@ class BuildDeviceTests(unittest.TestCase):
         version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.7"
         script = (version_dir / "m_for_mute.js").read_text(encoding="utf-8")
         patch_data = json.loads(
-            (version_dir / "nla_M-for-Mute-v0.0.7.maxpat").read_text(
+            (version_dir / "nla_M-For-Mute-v0.0.7.maxpat").read_text(
                 encoding="utf-8"
             )
         )
         embedded = (
-            version_dir / "nla_M-for-Mute-v0.0.7.amxd"
+            version_dir / "nla_M-For-Mute-v0.0.7.amxd"
         ).read_bytes()
 
         self.assertIn("new Task(processNextTrack, this)", script)
@@ -540,12 +571,12 @@ class BuildDeviceTests(unittest.TestCase):
         version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.8"
         script = (version_dir / "m_for_mute.js").read_text(encoding="utf-8")
         patch_data = json.loads(
-            (version_dir / "nla_M-for-Mute-v0.0.8.maxpat").read_text(
+            (version_dir / "nla_M-For-Mute-v0.0.8.maxpat").read_text(
                 encoding="utf-8"
             )
         )
         embedded = (
-            version_dir / "nla_M-for-Mute-v0.0.8.amxd"
+            version_dir / "nla_M-For-Mute-v0.0.8.amxd"
         ).read_bytes()
 
         self.assertIn('phase: "snapshot"', script)
@@ -582,6 +613,32 @@ class BuildDeviceTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "nla_<Device-Name>-v"):
                 build_device(device_dir)
+
+    def test_build_prefix_requires_capitalized_device_words(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory), build_prefix="nla_M-for-Mute-v"
+            )
+
+            with self.assertRaisesRegex(ValueError, "capital letters"):
+                build_device(device_dir)
+
+    def test_existing_build_filenames_capitalize_device_words(self) -> None:
+        for version_dir in (PROJECT_ROOT / "devices").glob("*/v*"):
+            for build_path in version_dir.iterdir():
+                if build_path.suffix not in {".amxd", ".maxpat"}:
+                    continue
+                name_without_version = re.sub(
+                    r"(?:-v| v)\d+\.\d+\.\d+$", "", build_path.stem
+                )
+                if name_without_version.startswith("nla_"):
+                    name_without_version = name_without_version[len("nla_") :]
+                words = re.split(r"[- ]+", name_without_version)
+                with self.subTest(build=build_path):
+                    self.assertTrue(
+                        all(word and word[0].isupper() for word in words),
+                        f"Build filename has a lowercase device-name word: {build_path}",
+                    )
 
     def test_v003_routes_live_api_responses_and_defers_query(self) -> None:
         patch_path = (

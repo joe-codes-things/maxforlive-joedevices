@@ -12,7 +12,7 @@ S for Solo provides a key-mappable Solo control for selected tracks. Add its
 `.amxd` device to a Live Set, map the device's Solo control to lowercase `s` in
 Key Map Mode, and turn off Live's Computer MIDI Keyboard (Musical Typing) so it
 does not intercept the shortcut. The latest build is
-[`devices/s-for-solo/v0.0.5/nla_S-for-Solo-v0.0.5.amxd`](devices/s-for-solo/v0.0.5/nla_S-for-Solo-v0.0.5.amxd).
+[`devices/s-for-solo/v0.0.5/nla_S-For-Solo-v0.0.5.amxd`](devices/s-for-solo/v0.0.5/nla_S-For-Solo-v0.0.5.amxd).
 
 Note Length is an early step-input prototype for changing the active MIDI
 clip's grid, so the selected division is used for notes entered next. Map its
@@ -28,6 +28,14 @@ before applying changes, then verifies the final states through the Live API.
 Multi-track toggling has been verified for pairs and larger groups of MIDI and
 audio tracks. Keep the required `m_for_mute.js` script beside the `.amxd`. See
 [`devices/m-for-mute/`](devices/m-for-mute/) for setup and diagnostic details.
+
+Q for Quantize v0.0.6 is complete and verified in Live. Open a MIDI clip in
+Detail View, select notes, and map its Quantize button to lowercase `q` in Key
+Map Mode. It quantizes selected note starts to the active clip grid without
+changing their lengths or unselected notes. Install the
+[`v0.0.6 device`](devices/q-for-quantize/v0.0.6/nla_Q-For-Quantize-v0.0.6.amxd)
+with its required `q_for_quantize.js` script beside it. See
+[`devices/q-for-quantize/`](devices/q-for-quantize/) for setup details.
 
 ## Building a new version
 
@@ -50,8 +58,9 @@ manual step for the user.
 
 To add a device, create a folder with a `device.json` containing its display
 `name` and a `build_prefix` in the `nla_<Device-Name>-v` form, then put one
-initial `.maxpat` source in that folder. Running the builder for that folder
-creates its v0.0.1 build. See `devices/track-select-auto-arm/device.json` for
-an example manifest.
+initial `.maxpat` source in that folder. Capitalize each device-name word in
+the prefix; only `nla` and the version's `v` are lowercase. Running the builder
+for that folder creates its v0.0.1 build. See
+`devices/track-select-auto-arm/device.json` for an example manifest.
 
 **Made with care by Nine Lives Audio**

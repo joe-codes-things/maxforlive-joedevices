@@ -51,6 +51,12 @@ def load_device_config(device_dir: Path) -> DeviceConfig:
             f"{config_path} 'build_prefix' must follow the "
             "'nla_<Device-Name>-v' convention."
         )
+    device_name = build_prefix[len("nla_") : -len("-v")]
+    if any(not word or not word[0].isupper() for word in device_name.split("-")):
+        raise ValueError(
+            f"{config_path} 'build_prefix' device-name words must start "
+            "with capital letters."
+        )
 
     return DeviceConfig(name=name, build_prefix=build_prefix)
 
