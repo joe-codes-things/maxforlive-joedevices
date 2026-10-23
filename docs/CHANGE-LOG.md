@@ -2,6 +2,43 @@
 
 All notable changes to the devices in this repository are documented here.
 
+## Single Bar Jump
+
+### v0.0.4
+
+- Set both mapped buttons to emit a bang on either value transition, following
+  the working key-mappable button pattern used by the other devices. Repeated
+  mapped keypresses no longer depend on the button indicator being off.
+- Confirmed by the user to work in Live with comma/period mappings and repeated
+  single-press navigation regardless of the oval indicator state.
+
+### v0.0.3
+
+- Changed Back and Forward buttons to momentary mode, allowing each mapped
+  keypress to fire without toggling a latched UI state.
+- Move the Scrub Area with Live's documented `Song.jump_by` function instead
+  of setting `current_song_time` and immediately assuming its readback is
+  synchronous.
+- Log the requested jump and observed current position without treating a
+  delayed `current_song_time` readback as a failed movement.
+
+### v0.0.2
+
+- Fixed the button trigger path: `live.button` sends a bang, so each control
+  now converts that bang into its direction value before calling the script.
+- Changed the button transition to emit one trigger on press instead of also
+  triggering on release.
+- Added a Max Console message on script load so installation and dependency
+  loading can be diagnosed before pressing either control.
+
+### v0.0.1
+
+- Added Back and Forward controls that move both Arrangement positions by one
+  bar, calculated from the Live Set time signature.
+- Added Max Console diagnostics and transport-state checks.
+- Documented the comma/period Key Map Mode assignments and the need to verify
+  punctuation-key support on the user's keyboard layout in Live.
+
 ## Show VST Instrument
 
 ### v0.0.5

@@ -64,6 +64,15 @@ button to Num Pad 0 in Key Map Mode. It does not scroll an open clip editor;
 see [`devices/back-to-start/`](devices/back-to-start/) for setup, diagnostics,
 and API details.
 
+Single Bar Jump v0.0.4 provides Back and Forward buttons to move the
+Arrangement Scrub Area and Play Start Indicator by one bar, with the bar length
+calculated from the Live Set time signature. Map Back to comma and Forward to
+period in Key Map Mode. The user confirmed the mappings and repeated
+single-press behavior work in Live. See
+[`devices/single-bar-jump/`](devices/single-bar-jump/) for setup, diagnostics,
+and remaining limitations. The buttons emit on either state transition,
+following the working mapped-button pattern used by the other devices.
+
 ## Building a new version
 
 Each device is maintained in its own folder under `devices/`, with a

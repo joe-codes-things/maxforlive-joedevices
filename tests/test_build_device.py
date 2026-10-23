@@ -336,6 +336,69 @@ class BuildDeviceTests(unittest.TestCase):
                 )
             )
 
+    def test_single_bar_jump_build_packages_live_api_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "single-bar-jump"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Single Bar Jump",
+                build_prefix="nla_Single-Bar-Jump-v",
+            )
+            (device_dir / "Single Bar Jump.maxpat").write_bytes(
+                (source_dir / "Single Bar Jump.maxpat").read_bytes()
+            )
+            (device_dir / "single_bar_jump.js").write_bytes(
+                (source_dir / "single_bar_jump.js").read_bytes()
+            )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Single-Bar-Jump-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Single-Bar-Jump-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / "single_bar_jump.js").read_bytes(),
+                (source_dir / "single_bar_jump.js").read_bytes(),
+            )
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            patcher = patch_data["patcher"]
+            boxes = {
+                entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]
+            }
+            self.assertEqual(boxes["obj-5"]["maxclass"], "live.button")
+            self.assertEqual(boxes["obj-9"]["maxclass"], "live.button")
+            self.assertIn("comma (,)", boxes["obj-2"]["text"])
+            self.assertIn("period (.)", boxes["obj-2"]["text"])
+            self.assertEqual(boxes["obj-6"]["text"], "t b")
+            self.assertEqual(boxes["obj-10"]["text"], "t b")
+            self.assertEqual(boxes["obj-5"]["transition"], 2)
+            self.assertEqual(boxes["obj-9"]["transition"], 2)
+            self.assertEqual(boxes["obj-5"]["mode"], 0)
+            self.assertEqual(boxes["obj-9"]["mode"], 0)
+            connections = {
+                (
+                    tuple(line["patchline"]["source"]),
+                    tuple(line["patchline"]["destination"]),
+                )
+                for line in patcher["lines"]
+            }
+            self.assertIn((("obj-5", 0), ("obj-6", 0)), connections)
+            self.assertIn((("obj-6", 0), ("obj-7", 0)), connections)
+            self.assertIn((("obj-9", 0), ("obj-10", 0)), connections)
+            self.assertIn((("obj-10", 0), ("obj-11", 0)), connections)
+            self.assertIn((("obj-7", 0), ("obj-12", 0)), connections)
+            self.assertIn((("obj-11", 0), ("obj-12", 0)), connections)
+            self.assertIn((("obj-12", 0), ("obj-13", 0)), connections)
+            script = (source_dir / "single_bar_jump.js").read_text(encoding="utf-8")
+            self.assertIn("signature_numerator", script)
+            self.assertIn('song.call("jump_by", currentJump)', script)
+            self.assertIn("Single-Bar-Jump ERROR:", script)
+            self.assertIn("script loaded; Back and Forward controls ready", script)
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
