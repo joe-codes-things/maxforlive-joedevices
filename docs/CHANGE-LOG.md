@@ -4,6 +4,11 @@ All notable changes to the devices in this repository are documented here.
 
 ## Show VST Instrument
 
+### v0.0.5
+
+- Updated the UI mapping instruction from `Cmd+E` to lowercase `e`, matching
+  Live's single-key Key Map Mode mapping.
+
 ### v0.0.4
 
 - Added a Live version and `is_editor_open` availability check before accessing
@@ -12,6 +17,22 @@ All notable changes to the devices in this repository are documented here.
   Live 12.3.5 test confirmed that the property is unavailable there.
 - The device remains in development. Its intended editor toggle still requires
   validation in Live 12.4.3 or later.
+
+## Show Device View
+
+### v0.0.2
+
+- Open Device View using `focus_view("Detail/DeviceChain")` and hide the
+  containing Detail panel when Device View is already active. This avoids
+  switching between Clip View and Device View.
+- Confirmed working in Live: Device View opens directly, and the next press
+  hides the Detail panel.
+
+### v0.0.1
+
+- Added a key-mappable button to toggle the visibility of Live's
+  `Detail/DeviceChain` view through the documented Application.View API.
+- Documented mapping the button to lowercase `x` in Key Map Mode.
 
 ## S for Solo
 

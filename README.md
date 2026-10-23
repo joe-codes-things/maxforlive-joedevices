@@ -37,16 +37,25 @@ changing their lengths or unselected notes. Install the
 with its required `q_for_quantize.js` script beside it. See
 [`devices/q-for-quantize/`](devices/q-for-quantize/) for setup details.
 
-Show VST Instrument is in development. Its v0.0.4 prototype requires Live
+Show VST Instrument is in development. Its v0.0.5 prototype requires Live
 12.4.3 or later; it cannot control plug-in windows in the user's current Live
 12.3.5. Once Live is updated, select a MIDI track and map its VST Window
 button to lowercase `e` in Key Map Mode. It is intended to toggle the first
 VST instrument editor on that track, including instruments nested in racks.
 Install the
-[`v0.0.4 device`](devices/show-vst-instrument/v0.0.4/nla_Show-VST-Instrument-v0.0.4.amxd)
+[`v0.0.5 device`](devices/show-vst-instrument/v0.0.5/nla_Show-VST-Instrument-v0.0.5.amxd)
 with the required `show_vst_instrument.js` script beside it. See
 [`devices/show-vst-instrument/`](devices/show-vst-instrument/) for setup and
 diagnostic details. Live 12.4.3+ compatibility still needs testing.
+
+Show Device View v0.0.2 provides a key-mappable button that opens Device View
+directly and hides the Detail panel on the next press. Add it to a Live Set and
+map the button to lowercase `x` in Key Map Mode. Keep the required
+`show_device_view.js` script beside the
+[`v0.0.2 device`](devices/show-device-view/v0.0.2/nla_Show-Device-View-v0.0.2.amxd).
+This behavior has been confirmed working in Live. See
+[`devices/show-device-view/`](devices/show-device-view/) for setup and API
+details.
 
 ## Building a new version
 

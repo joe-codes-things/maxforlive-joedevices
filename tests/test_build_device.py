@@ -258,6 +258,42 @@ class BuildDeviceTests(unittest.TestCase):
                 (source_dir / "show_vst_instrument.js").read_bytes(),
             )
 
+    def test_show_device_view_build_packages_live_api_script(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "show-device-view"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Show Device View",
+                build_prefix="nla_Show-Device-View-v",
+            )
+            (device_dir / "Show Device View.maxpat").write_bytes(
+                (source_dir / "Show Device View.maxpat").read_bytes()
+            )
+            (device_dir / "show_device_view.js").write_bytes(
+                (source_dir / "show_device_view.js").read_bytes()
+            )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Show-Device-View-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Show-Device-View-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / "show_device_view.js").read_bytes(),
+                (source_dir / "show_device_view.js").read_bytes(),
+            )
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            self.assertTrue(
+                any(
+                    "lowercase x" in entry["box"].get("text", "")
+                    for entry in patch_data["patcher"]["boxes"]
+                )
+            )
+
     def test_device_versions_are_independent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)

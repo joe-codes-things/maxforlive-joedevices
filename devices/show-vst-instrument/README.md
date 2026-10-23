@@ -21,7 +21,9 @@ than one VST instrument is present, only the first is toggled; the Max Console
 logs the chosen device path and how many VST instruments were found. The
 device operates on the currently selected track only, not all selected tracks.
 
-The latest build is v0.0.4. Keep its required `show_vst_instrument.js` script
+The latest build is v0.0.5. Its UI instruction uses lowercase `e` to match
+Live's supported single-key mapping. Keep its required
+`show_vst_instrument.js` script
 beside the `.amxd` when installing it in Live. The manifest and `.maxpat` are
 build inputs and are not required in Live.
 

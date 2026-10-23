@@ -61,7 +61,7 @@
     "box": {
      "id": "obj-2",
      "maxclass": "comment",
-     "text": "Select a MIDI track. Map this button to Cmd+E to toggle its first VST instrument window.",
+     "text": "Select a MIDI track. Map this button to lowercase e to toggle its first VST instrument window.",
      "patching_rect": [
       20.0,
       50.0,
