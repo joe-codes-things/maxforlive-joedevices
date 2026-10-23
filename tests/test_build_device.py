@@ -126,6 +126,32 @@ class BuildDeviceTests(unittest.TestCase):
                 patch_data["patcher"]["description"], "Track Select Auto Arm v0.0.2"
             )
 
+    def test_build_copies_javascript_dependency_beside_device(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(Path(temporary_directory))
+            source = device_dir / "Track Select Auto Arm.maxpat"
+            source.write_text(
+                json.dumps(
+                    {
+                        "patcher": {
+                            "boxes": [
+                                {"box": {"text": "js helper.js"}},
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            dependency = device_dir / "helper.js"
+            dependency.write_text("function bang() {}", encoding="utf-8")
+
+            patch_path, _ = build_device(device_dir)
+
+            self.assertEqual(
+                (patch_path.parent / "helper.js").read_text(encoding="utf-8"),
+                "function bang() {}",
+            )
+
     def test_failed_pair_creation_rolls_back_new_file(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)
@@ -198,6 +224,342 @@ class BuildDeviceTests(unittest.TestCase):
 
             self.assertEqual(arm_build.parent.name, "v0.0.4")
             self.assertEqual(other_build.parent.name, "v1.2.5")
+
+    def test_m_for_mute_v0_0_1_toggles_selected_track_mute(self) -> None:
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.1"
+            / "nla_M-for-Mute-v0.0.1.maxpat"
+        )
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+
+        self.assertEqual(boxes["obj-1"]["text"], "M for Mute")
+        self.assertEqual(
+            boxes["obj-2"]["text"],
+            "Map Mute to lowercase m in Key Map Mode. Turn off Musical Typing first.",
+        )
+        self.assertEqual(boxes["obj-3"]["maxclass"], "live.button")
+        self.assertEqual(boxes["obj-3"]["mode"], 1)
+        self.assertEqual(
+            boxes["obj-3"]["saved_attribute_attributes"]["valueof"][
+                "parameter_shortname"
+            ],
+            "Mute",
+        )
+        self.assertEqual(boxes["obj-10"]["text"], "live.path live_set view")
+        self.assertEqual(boxes["obj-12"]["text"], "property selected_track")
+        self.assertEqual(boxes["obj-13"]["text"], "live.observer")
+        self.assertEqual(boxes["obj-15"]["text"], "get mute")
+        self.assertEqual(boxes["obj-17"]["text"], "route mute")
+        self.assertEqual(boxes["obj-18"]["text"], "!- 1")
+        self.assertEqual(boxes["obj-19"]["text"], "prepend set mute")
+        self.assertIn((("obj-3", 0), ("obj-16", 0)), connections)
+        self.assertIn((("obj-16", 0), ("obj-15", 0)), connections)
+        self.assertIn((("obj-15", 0), ("obj-14", 0)), connections)
+        self.assertIn((("obj-17", 0), ("obj-18", 0)), connections)
+        self.assertIn((("obj-18", 0), ("obj-19", 0)), connections)
+        self.assertIn((("obj-19", 0), ("obj-24", 0)), connections)
+        self.assertIn((("obj-13", 0), ("obj-14", 1)), connections)
+        self.assertIn((("obj-13", 0), ("obj-24", 1)), connections)
+
+        package = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.1"
+            / "nla_M-for-Mute-v0.0.1.amxd"
+        ).read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_2_toggles_each_selected_track(self) -> None:
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.2"
+            / "nla_M-for-Mute-v0.0.2.maxpat"
+        )
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+
+        self.assertEqual(boxes["obj-2"]["text"], (
+            "Map Mute to lowercase m. Toggles each selected track's activator."
+        ))
+        self.assertEqual(boxes["obj-12"]["text"], "getchild tracks")
+        self.assertEqual(boxes["obj-29"]["text"], "getchild return_tracks")
+        self.assertEqual(
+            boxes["obj-14"]["text"], "route tracks return_tracks"
+        )
+        self.assertEqual(boxes["obj-14"]["numoutlets"], 3)
+        self.assertEqual(boxes["obj-15"]["text"], "zl iter 2")
+        self.assertEqual(boxes["obj-17"]["text"], "route is_part_of_selection")
+        self.assertEqual(boxes["obj-18"]["text"], "sel 1")
+        self.assertEqual(boxes["obj-19"]["text"], "get mute")
+        self.assertEqual(boxes["obj-26"]["text"], "route mute")
+        self.assertEqual(boxes["obj-27"]["text"], "!- 1")
+        self.assertEqual(boxes["obj-28"]["text"], "prepend set mute")
+        self.assertIn((("obj-15", 0), ("obj-11", 0)), connections)
+        self.assertIn((("obj-11", 1), ("obj-24", 1)), connections)
+        self.assertIn((("obj-25", 0), ("obj-24", 0)), connections)
+        self.assertIn((("obj-24", 0), ("obj-17", 0)), connections)
+        self.assertIn((("obj-19", 0), ("obj-24", 0)), connections)
+        self.assertIn((("obj-28", 0), ("obj-24", 0)), connections)
+
+        package = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.2"
+            / "nla_M-for-Mute-v0.0.2.amxd"
+        ).read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_3_reports_diagnostic_stages(self) -> None:
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.3"
+            / "nla_M-for-Mute-v0.0.3.maxpat"
+        )
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+
+        self.assertEqual(
+            boxes["obj-2"]["text"],
+            "Map this Mute button to lowercase m. Toggles selected track activators.",
+        )
+        self.assertEqual(boxes["obj-12"]["text"], "get tracks")
+        self.assertEqual(boxes["obj-29"]["text"], "get return_tracks")
+        for object_id, label in (
+            ("obj-30", "print M-for-Mute-BUTTON"),
+            ("obj-31", "print M-for-Mute-TRIGGER"),
+            ("obj-32", "print M-for-Mute-SONG-API"),
+            ("obj-33", "print M-for-Mute-TRACK-LIST"),
+            ("obj-34", "print M-for-Mute-RETURN-TRACK-LIST"),
+            ("obj-35", "print M-for-Mute-TRACK-ID"),
+            ("obj-36", "print M-for-Mute-LIVE-API"),
+            ("obj-37", "print M-for-Mute-API-ERROR"),
+            ("obj-38", "print M-for-Mute-SELECTED"),
+            ("obj-39", "print M-for-Mute-SET"),
+        ):
+            with self.subTest(label=label):
+                self.assertEqual(boxes[object_id]["text"], label)
+
+        self.assertIn((("obj-3", 0), ("obj-30", 0)), connections)
+        self.assertIn((("obj-13", 0), ("obj-32", 0)), connections)
+        self.assertIn((("obj-14", 0), ("obj-33", 0)), connections)
+        self.assertIn((("obj-15", 0), ("obj-35", 0)), connections)
+        self.assertIn((("obj-24", 0), ("obj-36", 0)), connections)
+        self.assertIn((("obj-24", 1), ("obj-37", 0)), connections)
+        self.assertIn((("obj-28", 0), ("obj-39", 0)), connections)
+
+        package = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.3"
+            / "nla_M-for-Mute-v0.0.3.amxd"
+        ).read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_4_fixes_button_and_live_object_wiring(self) -> None:
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.4"
+            / "nla_M-for-Mute-v0.0.4.maxpat"
+        )
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+
+        self.assertEqual(boxes["obj-16"]["text"], "t b b")
+        self.assertEqual(boxes["obj-13"]["numoutlets"], 1)
+        self.assertEqual(boxes["obj-24"]["numoutlets"], 1)
+        self.assertEqual(boxes["obj-37"]["text"], "print M-for-Mute-UNROUTED")
+        self.assertIn((("obj-3", 0), ("obj-16", 0)), connections)
+        self.assertIn((("obj-16", 0), ("obj-12", 0)), connections)
+        self.assertIn((("obj-16", 0), ("obj-29", 0)), connections)
+        self.assertIn((("obj-17", 1), ("obj-37", 0)), connections)
+        self.assertIn((("obj-13", 0), ("obj-14", 0)), connections)
+        for line in patcher["lines"]:
+            source = line["patchline"]["source"]
+            self.assertLess(source[1], boxes[source[0]].get("numoutlets", 1))
+
+        package = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.4"
+            / "nla_M-for-Mute-v0.0.4.amxd"
+        ).read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_5_uses_retriggerable_button_and_liveapi_script(self) -> None:
+        version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.5"
+        patch_path = version_dir / "nla_M-for-Mute-v0.0.5.maxpat"
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        patcher = patch_data["patcher"]
+        boxes = {entry["box"]["id"]: entry["box"] for entry in patcher["boxes"]}
+        connections = {
+            (
+                tuple(line["patchline"]["source"]),
+                tuple(line["patchline"]["destination"]),
+            )
+            for line in patcher["lines"]
+        }
+
+        self.assertEqual(boxes["obj-3"]["mode"], 0)
+        self.assertEqual(boxes["obj-3"]["transition"], 2)
+        self.assertEqual(boxes["obj-10"]["text"], "deferlow")
+        self.assertEqual(boxes["obj-11"]["text"], "js m_for_mute.js")
+        self.assertIn((("obj-3", 0), ("obj-10", 0)), connections)
+        self.assertIn((("obj-10", 0), ("obj-11", 0)), connections)
+        self.assertTrue((version_dir / "m_for_mute.js").is_file())
+
+        package = (version_dir / "nla_M-for-Mute-v0.0.5.amxd").read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_6_initializes_liveapi_with_callback(self) -> None:
+        script_path = PROJECT_ROOT / "devices" / "m-for-mute" / "m_for_mute.js"
+        script = script_path.read_text(encoding="utf-8")
+        version_script = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.6"
+            / "m_for_mute.js"
+        )
+        patch_path = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.6"
+            / "nla_M-for-Mute-v0.0.6.maxpat"
+        )
+
+        self.assertIn('new LiveAPI(apiCallback, "live_set")', script)
+        self.assertIn('new LiveAPI(apiCallback, path)', script)
+        self.assertIn("song.id === 0", script)
+        self.assertIn("song.path", script)
+        self.assertTrue(version_script.is_file())
+        self.assertIn(
+            'new LiveAPI(apiCallback, "live_set")',
+            version_script.read_text(encoding="utf-8"),
+        )
+
+        patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+        package = (
+            PROJECT_ROOT
+            / "devices"
+            / "m-for-mute"
+            / "v0.0.6"
+            / "nla_M-for-Mute-v0.0.6.amxd"
+        ).read_bytes()
+        self.assertEqual(package[24:28], b"ptch")
+        payload_length = struct.unpack("<I", package[28:32])[0]
+        embedded_patch = json.loads(package[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_7_verifies_scheduled_track_changes(self) -> None:
+        version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.7"
+        script = (version_dir / "m_for_mute.js").read_text(encoding="utf-8")
+        patch_data = json.loads(
+            (version_dir / "nla_M-for-Mute-v0.0.7.maxpat").read_text(
+                encoding="utf-8"
+            )
+        )
+        embedded = (
+            version_dir / "nla_M-for-Mute-v0.0.7.amxd"
+        ).read_bytes()
+
+        self.assertIn("new Task(processNextTrack, this)", script)
+        self.assertIn("processingTask.schedule(20)", script)
+        self.assertIn('track.set("mute", batch.expectedMute)', script)
+        self.assertIn('verifyTrack.get("mute")', script)
+        self.assertIn("M-for-Mute: verified", script)
+        self.assertIn("M-for-Mute ERROR:", script)
+        self.assertTrue((version_dir / "m_for_mute.js").is_file())
+        self.assertEqual(embedded[24:28], b"ptch")
+        payload_length = struct.unpack("<I", embedded[28:32])[0]
+        embedded_patch = json.loads(embedded[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
+
+    def test_m_for_mute_v0_0_8_snapshots_before_writing_and_verifies_after(self) -> None:
+        version_dir = PROJECT_ROOT / "devices" / "m-for-mute" / "v0.0.8"
+        script = (version_dir / "m_for_mute.js").read_text(encoding="utf-8")
+        patch_data = json.loads(
+            (version_dir / "nla_M-for-Mute-v0.0.8.maxpat").read_text(
+                encoding="utf-8"
+            )
+        )
+        embedded = (
+            version_dir / "nla_M-for-Mute-v0.0.8.amxd"
+        ).read_bytes()
+
+        self.assertIn('phase: "snapshot"', script)
+        self.assertIn('batch.phase = "set"', script)
+        self.assertIn('batch.phase = "verify"', script)
+        self.assertIn("initialMute: initialMute", script)
+        self.assertIn("targetMute: initialMute === 0 ? 1 : 0", script)
+        self.assertIn('setTrack.set("mute", state.targetMute)', script)
+        self.assertIn('verifyTrack.get("mute")', script)
+        self.assertTrue((version_dir / "m_for_mute.js").is_file())
+        self.assertEqual(embedded[24:28], b"ptch")
+        payload_length = struct.unpack("<I", embedded[28:32])[0]
+        embedded_patch = json.loads(embedded[32 : 32 + payload_length].rstrip(b"\0"))
+        self.assertEqual(embedded_patch, patch_data)
 
     def test_device_manifest_requires_name_and_build_prefix(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

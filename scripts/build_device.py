@@ -153,9 +153,26 @@ def build_device(
     patcher["description"] = f"{config.name} v{version}"
     patch_bytes = json.dumps(source, indent=1, ensure_ascii=False).encode("utf-8")
     amxd_bytes = package_amxd(patch_bytes)
+    dependencies: list[tuple[Path, bytes]] = []
+    for entry in patcher.get("boxes", []):
+        box = entry.get("box", {})
+        text = box.get("text", "")
+        if not isinstance(text, str) or not text.startswith("js "):
+            continue
+        dependency_name = text.split(maxsplit=1)[1]
+        dependency_path = device_dir / dependency_name
+        if not dependency_path.is_file():
+            raise FileNotFoundError(
+                f"Max JavaScript dependency not found: {dependency_path}"
+            )
+        dependencies.append(
+            (version_dir / dependency_name, dependency_path.read_bytes())
+        )
     version_dir.mkdir()
     try:
-        write_new_files([(patch_path, patch_bytes), (device_path, amxd_bytes)])
+        write_new_files(
+            [(patch_path, patch_bytes), (device_path, amxd_bytes), *dependencies]
+        )
     except Exception:
         version_dir.rmdir()
         raise

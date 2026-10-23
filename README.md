@@ -20,6 +20,15 @@ six controls to Num Pad 1–6 in Key Map Mode. See
 [`devices/note-length/`](devices/note-length/) for the mapping and current
 limitations.
 
+M for Mute provides a key-mappable Mute control for selected tracks. Add the
+device to a Live Set and map its Mute button to lowercase `m` in Key Map Mode.
+The button checks the current track selection; do not map individual track
+activators. Version 0.0.8 snapshots the initial states of all selected tracks
+before applying changes, then verifies the final states through the Live API.
+Multi-track toggling has been verified for pairs and larger groups of MIDI and
+audio tracks. Keep the required `m_for_mute.js` script beside the `.amxd`. See
+[`devices/m-for-mute/`](devices/m-for-mute/) for setup and diagnostic details.
+
 ## Building a new version
 
 Each device is maintained in its own folder under `devices/`, with a
