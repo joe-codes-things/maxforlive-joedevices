@@ -90,6 +90,15 @@ This behavior has been confirmed working in Live. See
 [`devices/show-device-view/`](devices/show-device-view/) for setup and API
 details.
 
+Show Clip View v0.0.2 provides a key-mappable button that opens Clip View
+directly and hides the Detail panel on the next press. Add it to a Live Set and
+map the button to lowercase `z` in Key Map Mode. Keep the required
+`show_clip_view.js` script beside the
+[`v0.0.2 device`](devices/show-clip-view/v0.0.2/nla_Show-Clip-View-v0.0.2.amxd).
+The Clip View toggle was confirmed working in v0.0.1; v0.0.2 updates the
+suggested key mapping. See
+[`devices/show-clip-view/`](devices/show-clip-view/) for setup and API details.
+
 Back to Start v0.0.2 provides a key-mappable button that moves both Live's
 Scrub Area position and Play Start Indicator to bar 1 without starting
 playback. This version has been confirmed working in Live. Map its Start

@@ -212,6 +212,20 @@ All notable changes to the devices in this repository are documented here.
   `Detail/DeviceChain` view through the documented Application.View API.
 - Documented mapping the button to lowercase `x` in Key Map Mode.
 
+## Show Clip View
+
+### v0.0.2
+
+- Changed the on-device mapping instruction and digest to lowercase `z`.
+- The Clip View toggle behavior was confirmed by the user in v0.0.1.
+
+### v0.0.1
+
+- Added a key-mappable button that toggles Live's `Detail/Clip` view using the
+  documented Application.View API.
+- Documented mapping the button to lowercase `c` in Key Map Mode.
+- Created the initial device build.
+
 ## Back to Start
 
 ### v0.0.2

@@ -31,13 +31,20 @@
   previously tested with Live 12.3.5 and Max 9.2.
 - **Reported reproduction**: With Mixer Window loaded and active, scroll
   horizontally in Session View and select different tracks in Arrangement
-  View. Confirm whether the slowdown begins on device load or only after
-  clicking the device button to open the mixer.
+  View. Then leave the mixer open and use Up/Down to change Arrangement track
+  selection, comparing the timing of Live's highlight with the mixer's
+  selection highlight. Confirm whether the slowdown begins on device load or
+  only after clicking the device button to open the mixer.
 - **Expected behavior**: Live's Session and Arrangement interfaces remain
   responsive while Mixer Window is in use.
 - **Actual behavior**: The user reports that horizontal scrolling becomes
   jumpy and Arrangement track selection feels delayed while the mixer is
-  visible.
+  visible. In a later test, pressing Up/Down to navigate tracks in Arrangement
+  updated Live's highlighted track immediately, while the corresponding
+  selection highlight in Mixer Window sometimes took up to a couple of seconds
+  to update. This suggests the observed lag also affects propagation from Live
+  into the mixer display, rather than only Live responding slowly to mixer
+  activity.
 - **Investigation**: Source review identifies a plausible UI/API workload, but
   no runtime profile or controlled A/B test has confirmed the cause:
   - After the mixer is opened and its initial channel scan completes, the
@@ -54,6 +61,12 @@
     visible mixer canvas. This may request multiple full-canvas redraws during
     each state sweep; whether Max coalesces these redraw requests and how much
     time they consume has not been measured.
+  - The reported delay in the mixer's selection highlight is consistent with
+    selection being read as part of the repeating state sweep, which nominally
+    waits 50 ms between completed sweeps. The delay of up to a couple seconds
+    exceeds that nominal interval, so the polling cadence alone does not
+    explain it; a blocked/slow sweep, message delivery, or UI redraw delay
+    remains possible and requires profiling.
   - The device's repeated state scan begins after the user presses the device
     button to open the mixer; Live API readiness alone does not start it.
     Because the report describes the device as "loaded," testing the loaded
@@ -90,8 +103,9 @@
   it has been opened. Repeat with playback/automation stopped and active, then
   with increasing track and return/send counts. Record exact Live/Max/macOS
   versions and compare Live UI responsiveness as well as process CPU usage;
-  interpret Live's CPU meter as audio-load evidence only. If confirmed, profile
-  the time and API-read count per sweep, replace polling with Live API
+  record the selection-highlight delay in both directions and interpret Live's
+  CPU meter as audio-load evidence only. If confirmed, profile the time and
+  API-read count per sweep, replace polling with Live API
   observers for properties that support observation, retain only low-rate
   polling for unsupported properties, batch state messages, and coalesce UI
   redraws to at most one per update/frame. Consider reducing or pausing work
