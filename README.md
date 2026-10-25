@@ -42,6 +42,26 @@ Multi-track toggling has been verified for pairs and larger groups of MIDI and
 audio tracks. Keep the required `m_for_mute.js` script beside the `.amxd`. See
 [`devices/m-for-mute/`](devices/m-for-mute/) for setup and diagnostic details.
 
+Mixer Window v0.0.8 opens a separate, Live-inspired mixer window with vertical
+volume faders capped at 0 dB, editable two-decimal dB readouts, double-click-
+to-zero, horizontal pan sliders with double-click-to-center, track activator,
+Solo and Arm buttons, and send knobs that follow the Set's return tracks.
+Keyboard left/right moves selection between regular tracks. Input/output
+routing menus, track colors and selection tint are also supported. Existing
+multi-track selections made in Live are reflected, but clicking in the mixer
+can only select one track through the documented Live API; multi-select
+feasibility is tracked in F003. Grab the fader nub itself to move a volume
+fader; clicking elsewhere in the strip selects its track. Custom meter bars
+were removed; meter work is tracked as a future feature idea. Positive values
+typed into the dB readout clamp to 0 dB; the editor selects the current text
+and flashes its caret. A possible Live UI responsiveness issue has been
+reported; see [B005](docs/BUGS.md#b005--mixer-window-reduces-live-ui-responsiveness)
+and the Mixer Window README for investigation details. Install the
+[`v0.0.8 device`](devices/mixer-window/v0.0.8/nla_Mixer-Window-v0.0.8.amxd)
+with `mixer_window.js` and `mixer_window_ui.js` beside it. See
+[`devices/mixer-window/`](devices/mixer-window/) for details and validation
+steps.
+
 Q for Quantize v0.0.6 is complete and verified in Live. Open a MIDI clip in
 Detail View, select notes, and map its Quantize button to lowercase `q` in Key
 Map Mode. It quantizes selected note starts to the active clip grid without

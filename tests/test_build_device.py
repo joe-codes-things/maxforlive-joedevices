@@ -153,6 +153,109 @@ class BuildDeviceTests(unittest.TestCase):
                 "function bang() {}",
             )
 
+    def test_build_copies_javascript_ui_dependency_from_nested_patcher(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(Path(temporary_directory))
+            source = device_dir / "Track Select Auto Arm.maxpat"
+            source.write_text(
+                json.dumps(
+                    {
+                        "patcher": {
+                            "boxes": [
+                                {
+                                    "box": {
+                                        "text": "p mixer",
+                                        "patcher": {
+                                            "boxes": [
+                                                {
+                                                    "box": {
+                                                        "text": "jsui mixer.js"
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            dependency = device_dir / "mixer.js"
+            dependency.write_text("function paint() {}", encoding="utf-8")
+
+            patch_path, _ = build_device(device_dir)
+
+            self.assertEqual(
+                (patch_path.parent / "mixer.js").read_text(encoding="utf-8"),
+                "function paint() {}",
+            )
+
+    def test_mixer_window_first_build_includes_nested_ui_dependency(self) -> None:
+        source_dir = PROJECT_ROOT / "devices" / "mixer-window"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            device_dir = self.create_device(
+                Path(temporary_directory),
+                name="Mixer Window",
+                build_prefix="nla_Mixer-Window-v",
+            )
+            for filename in (
+                "Mixer Window.maxpat",
+                "mixer_window.js",
+                "mixer_window_ui.js",
+            ):
+                (device_dir / filename).write_bytes(
+                    (source_dir / filename).read_bytes()
+                )
+
+            patch_path, device_path = build_device(device_dir)
+
+            self.assertEqual(patch_path.parent.name, "v0.0.1")
+            self.assertEqual(
+                patch_path.name, "nla_Mixer-Window-v0.0.1.maxpat"
+            )
+            self.assertEqual(
+                device_path.name, "nla_Mixer-Window-v0.0.1.amxd"
+            )
+            self.assertEqual(
+                (patch_path.parent / "mixer_window.js").read_bytes(),
+                (source_dir / "mixer_window.js").read_bytes(),
+            )
+            self.assertEqual(
+                (patch_path.parent / "mixer_window_ui.js").read_bytes(),
+                (source_dir / "mixer_window_ui.js").read_bytes(),
+            )
+
+            patch_data = json.loads(patch_path.read_text(encoding="utf-8"))
+            self.assertIn(
+                "p mixer-window",
+                [
+                    box["box"].get("text")
+                    for box in patch_data["patcher"]["boxes"]
+                ],
+            )
+            subpatch_box = next(
+                box["box"]
+                for box in patch_data["patcher"]["boxes"]
+                if box["box"].get("text") == "p mixer-window"
+            )
+            embedded_patcher = subpatch_box["patcher"]
+            self.assertIn(
+                "jsui mixer_window_ui.js",
+                [
+                    box["box"].get("text")
+                    for box in embedded_patcher["boxes"]
+                ],
+            )
+            package = device_path.read_bytes()
+            self.assertEqual(package[24:28], b"ptch")
+            payload_length = struct.unpack("<I", package[28:32])[0]
+            embedded_patch = json.loads(
+                package[32 : 32 + payload_length].rstrip(b"\0")
+            )
+            self.assertEqual(embedded_patch, patch_data)
+
     def test_failed_pair_creation_rolls_back_new_file(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             directory = Path(temporary_directory)

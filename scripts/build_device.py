@@ -135,6 +135,22 @@ def write_new_files(files: list[tuple[Path, bytes]]) -> None:
         raise
 
 
+def javascript_dependencies(patcher: dict) -> set[str]:
+    dependencies: set[str] = set()
+    for entry in patcher.get("boxes", []):
+        box = entry.get("box", {})
+        text = box.get("text", "")
+        if isinstance(text, str):
+            parts = text.split(maxsplit=1)
+            if len(parts) == 2 and parts[0] in {"js", "jsui"}:
+                dependencies.add(parts[1])
+
+        nested_patcher = box.get("patcher")
+        if isinstance(nested_patcher, dict):
+            dependencies.update(javascript_dependencies(nested_patcher))
+    return dependencies
+
+
 def build_device(
     device_dir: Path,
     source_path: Path | None = None,
@@ -160,12 +176,7 @@ def build_device(
     patch_bytes = json.dumps(source, indent=1, ensure_ascii=False).encode("utf-8")
     amxd_bytes = package_amxd(patch_bytes)
     dependencies: list[tuple[Path, bytes]] = []
-    for entry in patcher.get("boxes", []):
-        box = entry.get("box", {})
-        text = box.get("text", "")
-        if not isinstance(text, str) or not text.startswith("js "):
-            continue
-        dependency_name = text.split(maxsplit=1)[1]
+    for dependency_name in sorted(javascript_dependencies(patcher)):
         dependency_path = device_dir / dependency_name
         if not dependency_path.is_file():
             raise FileNotFoundError(
