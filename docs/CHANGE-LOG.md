@@ -226,6 +226,17 @@ All notable changes to the devices in this repository are documented here.
 - Documented mapping the button to lowercase `c` in Key Map Mode.
 - Created the initial device build.
 
+## Show Browser
+
+### v0.0.1
+
+- Added a key-mappable button to toggle Live's Browser using the documented
+  `Application.View` API.
+- Documented mapping the button to the main keyboard row's `1`, explicitly
+  distinguishing it from numpad `1`.
+- Confirmed by the user in Live: the top-row `1` mapping works and is distinct
+  from numpad `1`.
+
 ## Back to Start
 
 ### v0.0.2

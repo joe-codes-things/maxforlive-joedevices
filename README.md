@@ -99,6 +99,13 @@ The Clip View toggle was confirmed working in v0.0.1; v0.0.2 updates the
 suggested key mapping. See
 [`devices/show-clip-view/`](devices/show-clip-view/) for setup and API details.
 
+Show Browser v0.0.1 provides a key-mappable button that shows and hides Live's
+Browser. Map it to the `1` key on the main keyboard row, not numpad 1, in Key
+Map Mode. Keep the required `show_browser.js` script beside the
+[`v0.0.1 device`](devices/show-browser/v0.0.1/nla_Show-Browser-v0.0.1.amxd).
+The user confirmed that the top-row mapping works and is distinct from numpad
+keys. See [`devices/show-browser/`](devices/show-browser/) for setup details.
+
 Back to Start v0.0.2 provides a key-mappable button that moves both Live's
 Scrub Area position and Play Start Indicator to bar 1 without starting
 playback. This version has been confirmed working in Live. Map its Start
